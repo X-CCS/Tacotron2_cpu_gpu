@@ -9,7 +9,7 @@ WAVEGLOW_CKPT="checkpoint_WaveGlow_1000_fp32"
 AMP_RUN=""
 TEST_PROGRAM="test_infer.py"
 WN_CHANNELS=216
-CPU_RUN="False"
+CPU_RUN=""
 
 while [ -n "$1" ]
 do
@@ -59,7 +59,7 @@ do
 	    shift
 	    ;;
 	--cpu_run)
-	    CPU_RUN="True"
+	    CPU_RUN="--cpu_run"
 	    shift
 	    ;;
 	*)
@@ -98,7 +98,7 @@ python $TEST_PROGRAM \
        --log-file $NVLOG_FILE \
        --num-iters $NUM_ITERS \
        --wn-channels $WN_CHANNELS \
-       --cpu_run $CPU_RUN \
+       $CPU_RUN \
        |& tee $TMP_LOGFILE
 set +x
 
