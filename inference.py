@@ -68,7 +68,7 @@ def parse_args(parser):
                         help='Include warmup')
     parser.add_argument('--stft-hop-length', type=int, default=256,
                         help='STFT hop length for estimating audio length from mel size')
-    parser.add_argument('--cpu_run', action='store_true', 
+    parser.add_argument('--cpu-run', action='store_true', 
                         help='Run inference on CPU')
 
     return parser
@@ -103,19 +103,17 @@ def unwrap_distributed(state_dict):
     return new_state_dict
 
 
-def load_and_setup_model(model_name, parser, checkpoint, amp_run, cpu_run, forward_is_infer=False):
+def load_and_setup_model(model_name, parser, checkpoint, amp_run, cpu_run, forward_is_infer=False):  
     model_parser = models.parse_model_args(model_name, parser, add_help=False)
     model_args, _ = model_parser.parse_known_args()
-
     model_config = models.get_model_config(model_name, model_args)
     model = models.get_model(model_name, model_config, cpu_run, forward_is_infer=forward_is_infer)
-
+    
     if checkpoint is not None:
         if cpu_run:
             state_dict = torch.load(checkpoint, map_location=torch.device('cpu'))['state_dict']
         else:
             state_dict = torch.load(checkpoint)['state_dict']
-            print("debug: cpu_run == False!!!!!!!!!!!!")
             
         if checkpoint_from_distributed(state_dict):
             state_dict = unwrap_distributed(state_dict)
@@ -178,15 +176,13 @@ class MeasureTime():
         if self.cpu_run == False:
             torch.cuda.synchronize()
         else:
-            print("debug: cpu_run == True start time!!!!!!!!!!!!")
-        self.t0 = time.perf_counter()
+            self.t0 = time.perf_counter()
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         if self.cpu_run == False:
             torch.cuda.synchronize()
         else:
-            print("debug: cpu_run == True end time!!!!!!!!!!!!")
-        self.measurements[self.key] = time.perf_counter() - self.t0
+            self.measurements[self.key] = time.perf_counter() - self.t0
 
 
 def main():
@@ -213,7 +209,6 @@ def main():
     
     if args.cpu_run:
         denoiser = Denoiser(waveglow, args.cpu_run)
-        print("debug: cpu_run == True Denoiser!!!!!!!!!!!!")
     else:
          denoiser = Denoiser(waveglow, args.cpu_run).cuda()
 
@@ -232,7 +227,6 @@ def main():
             sequence = torch.randint(low=0, high=148, size=(1,50),
                                  dtype=torch.long)
             input_lengths = torch.IntTensor([sequence.size(1)]).long()
-            print("debug: cpu_run == True Warmup!!!!!!!!!!!!")
         else:
             sequence = torch.randint(low=0, high=148, size=(1,50),
                                  dtype=torch.long).cuda()
@@ -255,7 +249,13 @@ def main():
         audios = denoiser(audios, strength=args.denoising_strength).squeeze(1)
 
     print("Stopping after",mel.size(2),"decoder steps")
+
+    print("debug!!!!!")
+    print(measurements)
     tacotron2_infer_perf = mel.size(0)*mel.size(2)/measurements['tacotron2_time']
+    print("debug!!!!!")
+    print(tacotron2_infer_perf)
+    
     waveglow_infer_perf = audios.size(0)*audios.size(1)/measurements['waveglow_time']
 
     DLLogger.log(step=0, data={"tacotron2_items_per_sec": tacotron2_infer_perf})
