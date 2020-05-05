@@ -103,7 +103,7 @@ def unwrap_distributed(state_dict):
     return new_state_dict
 
 
-def load_and_setup_model(model_name, parser, checkpoint, amp_run, cpu_run, forward_is_infer=False):  
+def load_and_setup_model(model_name, parser, checkpoint, amp_run, cpu_run, forward_is_infer=False):
     model_parser = models.parse_model_args(model_name, parser, add_help=False)
     model_args, _ = model_parser.parse_known_args()
     model_config = models.get_model_config(model_name, model_args)
@@ -175,14 +175,12 @@ class MeasureTime():
     def __enter__(self):
         if self.cpu_run == False:
             torch.cuda.synchronize()
-        else:
-            self.t0 = time.perf_counter()
+        self.t0 = time.perf_counter()
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         if self.cpu_run == False:
             torch.cuda.synchronize()
-        else:
-            self.measurements[self.key] = time.perf_counter() - self.t0
+        self.measurements[self.key] = time.perf_counter() - self.t0
 
 
 def main():
@@ -250,12 +248,7 @@ def main():
 
     print("Stopping after",mel.size(2),"decoder steps")
 
-    print("debug!!!!!")
-    print(measurements)
-    tacotron2_infer_perf = mel.size(0)*mel.size(2)/measurements['tacotron2_time']
-    print("debug!!!!!")
-    print(tacotron2_infer_perf)
-    
+    tacotron2_infer_perf = mel.size(0)*mel.size(2)/measurements['tacotron2_time']   
     waveglow_infer_perf = audios.size(0)*audios.size(1)/measurements['waveglow_time']
 
     DLLogger.log(step=0, data={"tacotron2_items_per_sec": tacotron2_infer_perf})
