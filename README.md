@@ -18,7 +18,7 @@ CPU run:
 
 export CUDA_VISIBLE_DEVICES=
 
-python inference.py --tacotron2 tacotron2_1032590_6000_amp --waveglow waveglow_1076430_14000_amp --wn-channels 256 --cpu_run -o output/ -i phrases/phrase.txt
+python inference.py --tacotron2 tacotron2_1032590_6000_amp --waveglow waveglow_1076430_14000_amp --wn-channels 256 --cpu-run -o output/ -i phrases/phrase.txt
 
 CPU benchmarking:
 
