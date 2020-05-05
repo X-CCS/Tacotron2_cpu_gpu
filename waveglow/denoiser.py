@@ -64,11 +64,8 @@ class Denoiser(torch.nn.Module):
 
         self.register_buffer('bias_spec', bias_spec[:, :, 0][:, :, None])
 
-    def forward(self, cpu_run, audio, strength=0.1):
-        if cpu_run:
-            audio_spec, audio_angles = self.stft.transform(audio.float())
-        else:
-            audio_spec, audio_angles = self.stft.transform(audio.cuda().float())
+    def forward(self, audio, strength=0.1):
+        audio_spec, audio_angles = self.stft.transform(audio.float())
         audio_spec_denoised = audio_spec - self.bias_spec * strength
         audio_spec_denoised = torch.clamp(audio_spec_denoised, 0.0)
         audio_denoised = self.stft.inverse(audio_spec_denoised, audio_angles)
