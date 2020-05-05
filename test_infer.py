@@ -53,6 +53,7 @@ def parse_args(parser):
     parser.add_argument('--waveglow', type=str,
                         help='full path to the WaveGlow model checkpoint file')
     parser.add_argument('-s', '--sigma-infer', default=0.6, type=float)
+    parser.add_argument('-d', '--denoising-strength', default=0.01, type=float)
     parser.add_argument('-sr', '--sampling-rate', default=22050, type=int,
                         help='Sampling rate')
     parser.add_argument('--amp-run', action='store_true',
@@ -67,7 +68,7 @@ def parse_args(parser):
                         help='Input length')
     parser.add_argument('-bs', '--batch-size', type=int, default=1,
                         help='Batch size')
-    parser.add_argument('--cpu_run', action='store_true', 
+    parser.add_argument('--cpu-run', action='store_true', 
                         help='Run inference on CPU')
     return parser
 
@@ -172,12 +173,12 @@ def main():
     print("args:", args, unknown_args)
 
     tacotron2 = load_and_setup_model('Tacotron2', parser, args.tacotron2, args.amp_run, args.cpu_run, forward_is_infer=True)
-    waveglow = load_and_setup_model('WaveGlow', parser, args.waveglow, args.amp_run, args.cpu_run, forward_is_infer=True)
+    waveglow = load_and_setup_model('WaveGlow', parser, args.waveglow, args.amp_run, args.cpu_run)
 
     if args.cpu_run:
         denoiser = Denoiser(waveglow, args.cpu_run)
     else:
-         denoiser = Denoiser(waveglow, args.cpu_run).cuda()
+        denoiser = Denoiser(waveglow, args.cpu_run).cuda()
 
     jitted_tacotron2 = torch.jit.script(tacotron2)
 
@@ -201,6 +202,8 @@ def main():
 
                 with MeasureTime(measurements, "waveglow_latency", args.cpu_run):
                     audios = waveglow.infer(mel, sigma=args.sigma_infer)
+                    #audios = audios.float()
+                    #audios = denoiser(audios, strength=args.denoising_strength).squeeze(1)
 
         num_mels = mel.size(0)*mel.size(2)
         num_samples = audios.size(0)*audios.size(1)

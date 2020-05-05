@@ -4,11 +4,11 @@ BATCH_SIZE=1
 INPUT_LENGTH=128
 PRECISION="fp32"
 NUM_ITERS=1003 # extra 3 iterations for warmup
-TACOTRON2_CKPT="checkpoint_Tacotron2_1500_fp32"
-WAVEGLOW_CKPT="checkpoint_WaveGlow_1000_fp32"
+TACOTRON2_CKPT="tacotron2_1032590_6000_amp"
+WAVEGLOW_CKPT="waveglow_1076430_14000_amp"
 AMP_RUN=""
 TEST_PROGRAM="test_infer.py"
-WN_CHANNELS=216
+WN_CHANNELS=256
 CPU_RUN=""
 
 while [ -n "$1" ]
@@ -58,8 +58,8 @@ do
 	    WN_CHANNELS="$2"
 	    shift
 	    ;;
-	--cpu_run)
-	    CPU_RUN="--cpu_run"
+	--cpu-run)
+	    CPU_RUN="--cpu-run"
 	    shift
 	    ;;
 	*)
