@@ -1,4 +1,6 @@
-# Tacotron2_cpu_gpu Inference modified based on: https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/SpeechSynthesis/Tacotron2
+# Tacotron2_cpu_gpu Inference modified based on: 
+
+https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/SpeechSynthesis/Tacotron2
 
 bash scripts/docker/build.sh
 
