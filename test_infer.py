@@ -202,8 +202,9 @@ def main():
 
                 with MeasureTime(measurements, "waveglow_latency", args.cpu_run):
                     audios = waveglow.infer(mel, sigma=args.sigma_infer)
-                    #audios = audios.float()
-                    #audios = denoiser(audios, strength=args.denoising_strength).squeeze(1)
+                    audios = audios.float()
+                    print(audios.size())
+                    audios = denoiser(audios, strength=args.denoising_strength).squeeze(1)
 
         num_mels = mel.size(0)*mel.size(2)
         num_samples = audios.size(0)*audios.size(1)
